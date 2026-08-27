@@ -938,9 +938,82 @@ function viewProject(id){let p=projects.find(x=>x.id===id);show(`<div class="eye
 
 function recordForm(type,id){let data=type==='q'?quizzes:type==='l'?labs:exams,x=id?data.find(a=>a.id===id):null,label=type==='q'?'Quiz':type==='l'?'Laboratory':'Exam';show(`<div class="eyebrow">${x?'EDIT':'NEW'} ${label.toUpperCase()}</div><h2>${x?'Edit':'Add'} ${label}</h2><p class="modal-sub">Add the information after you complete the activity.</p><div class="form-grid"><div class="field full"><label>${label.toUpperCase()} NAME</label><input id="rn" value="${esc(x?.name||'')}" placeholder="e.g. Number Systems Quiz"></div><div class="field"><label>DATE</label><input id="rd" type="date" value="${esc(x?.date||'')}"></div><div class="field"><label>SCORE</label><input id="rs" value="${esc(x?.score||'')}" placeholder="e.g. 18/20"></div><div class="field full"><label>SHORT NOTE (OPTIONAL)</label><textarea id="rx" placeholder="Subject, topic, or description">${esc(x?.note||'')}</textarea></div><div class="field full"><label>FILE / ATTACHMENT / OUTPUT</label><input id="ri" type="file"><div class="file-note">Any file is allowed — screenshot, PDF, document, ZIP, or other file.</div><div id="fileNamePreview" class="file-note">${x?.fileName?`Current file: ${esc(x.fileName)}`:''}</div><img id="prev" class="preview" ${x?.image?`src="${x.image}" style="display:block"`:''}></div></div><div class="modal-actions"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn primary" onclick="saveRecord('${type}','${id||''}')">Save ${label}</button></div>`);document.getElementById('ri').onchange=e=>fileToData(e.target.files[0],d=>{if(d){document.getElementById('fileNamePreview').textContent='Selected file: '+d.name;if(d.type.startsWith('image/')){let z=document.getElementById('prev');z.src=d.data;z.style.display='block'}}})}
 
-function saveRecord(type,id){let data=type==='q'?quizzes:type==='l'?labs:exams,name=rn.value.trim();if(!name)return toast('Enter a name.');
-let old=id?data.find(x=>x.id===id):null;fileToData(document.getElementById('ri').files[0],f=>{let n={id:id||uid(),name,date:rd.value,score:rs.value.trim(),note:rx.value.trim(),image:old?.image||'',fileData:f?.data||old?.fileData||'',fileName:f?.name||old?.fileName||'',fileType:f?.type||old?.fileType||''};if(type==='q')quizzes=id?quizzes.map(x=>x.id===id?n:x):[...quizzes,n],write(QK,quizzes);if(type==='l')labs=id?labs.map(x=>x.id===id?n:x):[...labs,n],write(LK,labs);if(type==='e')exams=id?exams.map(x=>x.id===id?n:x):[...exams,n],write(EK,exams);renderRecords(type);closeModal();toast(id?'Record updated!':'Record added!')})}
+function saveRecord(type, id) {
+    let data = type === 'q' ? quizzes : type === 'l' ? labs : exams;
 
+    const name = document.getElementById('rn').value.trim();
+    const date = document.getElementById('rd').value;
+    const score = document.getElementById('rs').value.trim();
+    const note = document.getElementById('rx').value.trim();
+    const fileInput = document.getElementById('ri');
+
+    if (!name) {
+        toast('Enter a name.');
+        return;
+    }
+
+    const old = id ? data.find(x => x.id === id) : null;
+    const file = fileInput.files[0];
+
+    fileToData(file, f => {
+
+        const newRecord = {
+            id: id || uid(),
+            name: name,
+            date: date,
+            score: score,
+            note: note,
+
+            // Keep old file/image if no new file was selected
+            image: old?.image || '',
+            fileData: f?.data || old?.fileData || '',
+            fileName: f?.name || old?.fileName || '',
+            fileType: f?.type || old?.fileType || ''
+        };
+
+        // QUIZZES
+        if (type === 'q') {
+            if (id) {
+                quizzes = quizzes.map(x => x.id === id ? newRecord : x);
+            } else {
+                quizzes.push(newRecord);
+            }
+
+            write(QK, quizzes);
+        }
+
+        // LABORATORY
+        else if (type === 'l') {
+            if (id) {
+                labs = labs.map(x => x.id === id ? newRecord : x);
+            } else {
+                labs.push(newRecord);
+            }
+
+            write(LK, labs);
+        }
+
+        // EXAMS
+        else if (type === 'e') {
+            if (id) {
+                exams = exams.map(x => x.id === id ? newRecord : x);
+            } else {
+                exams.push(newRecord);
+            }
+
+            write(EK, exams);
+        }
+
+        // Refresh the correct section
+        renderRecords(type);
+
+        // Close popup
+        closeModal();
+
+        // Confirmation
+        toast(id ? 'Record updated!' : 'Record added!');
+    });
+}
 function viewRecord(type,id){let data=type==='q'?quizzes:type==='l'?labs:exams,x=data.find(a=>a.id===id),lab=type==='q'?'QUIZ':type==='l'?'LABORATORY':'EXAM';show(`<div class="eyebrow">${lab}</div><h2>${esc(x.name)}</h2><div class="view-meta">${x.date?`<span class="pill">${esc(x.date)}</span>`:''}${x.score?`<span class="pill">${esc(x.score)}</span>`:''}</div>${fileMarkup(x,'No file uploaded yet.')} ${x.note?`<p class="modal-sub" style="margin-top:15px">${esc(x.note)}</p>`:''}`)}
 
 function del(type,id){if(!confirm('Delete this item?'))return;if(type==='p'){projects=projects.filter(x=>x.id!==id);write(PK,projects);renderProjects()}else if(type==='q'){quizzes=quizzes.filter(x=>x.id!==id);write(QK,quizzes);renderRecords('q')}else if(type==='l'){labs=labs.filter(x=>x.id!==id);write(LK,labs);renderRecords('l')}else{exams=exams.filter(x=>x.id!==id);write(EK,exams);renderRecords('e')}toast('Deleted.')}
