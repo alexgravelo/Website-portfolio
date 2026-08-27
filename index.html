@@ -938,8 +938,71 @@ function fileMarkup(item, emptyText){ if(item?.fileData){ if((item.fileType||'')
 
 function renderProjects(){document.getElementById('projectGrid').innerHTML=projects.map(p=>`<article class="project-card"><div class="project-image">${p.fileData&&p.fileType?.startsWith('image/')?`<img src="${p.fileData}" alt="${esc(p.title)}">`:p.image?`<img src="${p.image}" alt="${esc(p.title)}">`:`<div class="project-placeholder">ADD YOUR PROJECT FILE<br><small>Use Edit Project</small></div>`}</div><div class="project-content"><div class="meta"><span>${esc(p.type)}</span><span>UI/UX</span></div><h3>${esc(p.title)}</h3><p>${esc(p.desc)}</p><div class="linkline">${p.link?`<a class="btn small primary" href="${esc(p.link)}" target="_blank" rel="noopener">Open Design</a>`:''}<button class="btn small" onclick="viewProject('${p.id}')">Details</button><button class="btn small" onclick="projectForm('${p.id}')">Edit</button><button class="btn small danger" onclick="del('p','${p.id}')">Delete</button></div></div></article>`).join('')+`<article class="record-card empty-card"><div class="plus">＋</div><h3>Add a Project</h3><p>Add your next UI/UX website or mobile design, any file, and Figma link.</p><button class="btn primary small" onclick="projectForm()">Add Project</button></article>`}
 
-function renderRecords(type){let data=type==='q'?quizzes:type==='l'?labs:exams,id=type==='q'?'quizGrid':type==='l'?'labGrid':'examGrid',label=type==='q'?'Quiz':type==='l'?'Laboratory':'Exam';let staticLab=type==='l'?`<article class="record-card reveal show"><div class="record-top"><span class="record-label">LABORATORY</span><span class="score">27/08/2026</span></div><h3>Operating System Laboratory 1</h3><p>Virtual Machine Setup (Ubuntu Desktop)</p><p style="margin-top:8px">📎 Ravelo_Lab1_Elective.pdf</p><div class="card-actions"><a class="btn small primary" href="./Ravelo_Lab1_Elective.pdf" target="_blank" rel="noopener">View PDF</a><a class="btn small" href="./Ravelo_Lab1_Elective.pdf" download>Download</a></div></article>`:'';document.getElementById(id).innerHTML=staticLab+data.map(x=>`<article class="record-card"><div class="record-top"><span class="record-label">${label.toUpperCase()}</span><span class="score">${esc(x.score||'')}</span></div><h3>${esc(x.name)}</h3><p>${esc(x.date||'No date added')}</p>${x.fileName?`<p style="margin-top:8px">📎 ${esc(x.fileName)}</p>`:''}${x.note?`<p style="margin-top:8px">${esc(x.note)}</p>`:''}<div class="card-actions"><button class="btn small primary" onclick="viewRecord('${type}','${x.id}')">View</button><button class="btn small" onclick="recordForm('${type}','${x.id}')">Edit</button><button class="btn small danger" onclick="del('${type}','${x.id}')">Delete</button></div></article>`).join('')+`<article class="record-card empty-card"><div class="plus">＋</div><h3>Add Your ${label}</h3><p>Add the name, date, score, and any file.</p><button class="btn primary small" onclick="recordForm('${type}')">Add ${label}</button></article>`}
+function renderRecords(type){
+    let data=type==='q'?quizzes:type==='l'?labs:exams,
+        id=type==='q'?'quizGrid':type==='l'?'labGrid':'examGrid',
+        label=type==='q'?'Quiz':type==='l'?'Laboratory':'Exam';
 
+    let staticQuiz=type==='q'?`
+        <article class="record-card reveal show">
+            <div class="record-top">
+                <span class="record-label">QUIZ</span>
+                <span class="score">18/20</span>
+            </div>
+            <h3>Quiz 1</h3>
+            <p><strong>Name:</strong> Alex G. Ravelo</p>
+            <p style="margin-top:8px"><strong>Date:</strong> August 25, 2026</p>
+            <p style="margin-top:8px">📎 Quiz_1.jpg</p>
+            <div class="card-actions">
+                <a class="btn small primary" href="./Quiz_1.jpg" target="_blank" rel="noopener">
+                    View Screenshot
+                </a>
+            </div>
+        </article>`:'';
+
+    let staticLab=type==='l'?`
+        <article class="record-card reveal show">
+            <div class="record-top">
+                <span class="record-label">LABORATORY</span>
+                <span class="score">27/08/2026</span>
+            </div>
+            <h3>Operating System Laboratory 1</h3>
+            <p>Virtual Machine Setup (Ubuntu Desktop)</p>
+            <p style="margin-top:8px">📎 Ravelo_Lab1_Elective.pdf</p>
+            <div class="card-actions">
+                <a class="btn small primary" href="./Ravelo_Lab1_Elective.pdf" target="_blank" rel="noopener">View PDF</a>
+                <a class="btn small" href="./Ravelo_Lab1_Elective.pdf" download>Download</a>
+            </div>
+        </article>`:'';
+
+    document.getElementById(id).innerHTML=
+        staticQuiz+
+        staticLab+
+        data.map(x=>`
+            <article class="record-card">
+                <div class="record-top">
+                    <span class="record-label">${label.toUpperCase()}</span>
+                    <span class="score">${esc(x.score||'')}</span>
+                </div>
+                <h3>${esc(x.name)}</h3>
+                <p>${esc(x.date||'No date added')}</p>
+                ${x.fileName?`<p style="margin-top:8px">📎 ${esc(x.fileName)}</p>`:''}
+                ${x.note?`<p style="margin-top:8px">${esc(x.note)}</p>`:''}
+                <div class="card-actions">
+                    <button class="btn small primary" onclick="viewRecord('${type}','${x.id}')">View</button>
+                    <button class="btn small" onclick="recordForm('${type}','${x.id}')">Edit</button>
+                    <button class="btn small danger" onclick="del('${type}','${x.id}')">Delete</button>
+                </div>
+            </article>
+        `).join('')+
+        `<article class="record-card empty-card">
+            <div class="plus">＋</div>
+            <h3>Add Your ${label}</h3>
+            <p>Add the name, date, score, and any file.</p>
+            <button class="btn primary small" onclick="recordForm('${type}')">Add ${label}</button>
+        </article>`;
+}
+            
 function projectForm(id){let p=id?projects.find(x=>x.id===id):null;show(`<div class="eyebrow">${p?'EDIT':'NEW'} PROJECT</div><h2>${p?'Edit':'Add'} Project</h2><p class="modal-sub">Add your UI/UX website or mobile design, any file, and Figma link.</p><div class="form-grid"><div class="field full"><label>PROJECT NAME</label><input id="pt" value="${esc(p?.title||'')}" placeholder="e.g. Food Delivery App"></div><div class="field"><label>TYPE</label><input id="py" value="${esc(p?.type||'UI/UX Design')}"></div><div class="field"><label>DESIGN LINK</label><input id="pl" value="${esc(p?.link||'')}" placeholder="Paste Figma link"></div><div class="field full"><label>DESCRIPTION</label><textarea id="pd" placeholder="Short project description">${esc(p?.desc||'')}</textarea></div><div class="field full"><label>PROJECT FILE / ATTACHMENT</label><input id="pi" type="file"><div class="file-note">Any file is allowed — image, PDF, document, ZIP, etc.</div><div id="fileNamePreview" class="file-note">${p?.fileName?`Current file: ${esc(p.fileName)}`:''}</div><img id="prev" class="preview" ${p?.image?`src="${p.image}" style="display:block"`:''}></div></div><div class="modal-actions"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn primary" onclick="saveProject('${id||''}')">Save Project</button></div>`);document.getElementById('pi').onchange=e=>fileToData(e.target.files[0],d=>{if(d){document.getElementById('fileNamePreview').textContent='Selected file: '+d.name;if(d.type.startsWith('image/')){let x=document.getElementById('prev');x.src=d.data;x.style.display='block'}}})}
 
 function saveProject(id){let title=pt.value.trim();if(!title)return toast('Enter a project name.');
