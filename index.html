@@ -920,8 +920,96 @@ function closeModal(){document.getElementById('modal').classList.remove('show');
 
 function toast(m){let t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1700)}
 
-function fileToData(file,cb){if(!file)return cb(null);
-let r=new FileReader();r.onload=()=>cb({data:r.result,name:file.name,type:file.type||'application/octet-stream'});r.readAsDataURL(file)}
+const FILE_DB = 'AlexPortfolioFiles';
+const FILE_STORE = 'files';
+
+function openFileDB() {
+    return new Promise((resolve, reject) => {
+        const request = indexedDB.open(FILE_DB, 1);
+
+        request.onupgradeneeded = function(e) {
+            const db = e.target.result;
+
+            if (!db.objectStoreNames.contains(FILE_STORE)) {
+                db.createObjectStore(FILE_STORE);
+            }
+        };
+
+        request.onsuccess = function(e) {
+            resolve(e.target.result);
+        };
+
+        request.onerror = function() {
+            reject(request.error);
+        };
+    });
+}
+
+function saveFileToDB(file) {
+    return new Promise(async (resolve, reject) => {
+        if (!file) {
+            resolve(null);
+            return;
+        }
+
+        try {
+            const db = await openFileDB();
+            const fileId = uid();
+
+            const transaction = db.transaction(FILE_STORE, 'readwrite');
+            const store = transaction.objectStore(FILE_STORE);
+
+            store.put(file, fileId);
+
+            transaction.oncomplete = function() {
+                resolve({
+                    id: fileId,
+                    name: file.name,
+                    type: file.type || 'application/octet-stream'
+                });
+            };
+
+            transaction.onerror = function() {
+                reject(transaction.error);
+            };
+
+        } catch (error) {
+            reject(error);
+        }
+    });
+}
+
+function getFileFromDB(fileId) {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const db = await openFileDB();
+
+            const transaction = db.transaction(FILE_STORE, 'readonly');
+            const store = transaction.objectStore(FILE_STORE);
+            const request = store.get(fileId);
+
+            request.onsuccess = function() {
+                resolve(request.result || null);
+            };
+
+            request.onerror = function() {
+                reject(request.error);
+            };
+
+        } catch (error) {
+            reject(error);
+        }
+    });
+}
+
+function deleteFileFromDB(fileId) {
+    if (!fileId) return;
+
+    openFileDB().then(db => {
+        const transaction = db.transaction(FILE_STORE, 'readwrite');
+        transaction.objectStore(FILE_STORE).delete(fileId);
+    });
+}
 
 function fileMarkup(item, emptyText){ if(item?.fileData){ if((item.fileType||'').startsWith('image/')) return `<img class="view-img" src="${item.fileData}" alt="">`; return `<div class="no-img">Attachment: <b>${esc(item.fileName||'File')}</b><br><a class="btn primary small" style="margin-top:12px" href="${item.fileData}" download="${esc(item.fileName||'file')}" target="_blank">Open / Download File</a></div>` } if(item?.image) return `<img class="view-img" src="${item.image}" alt="">`; return `<div class="no-img">${emptyText}</div>`}
 
@@ -938,7 +1026,7 @@ function viewProject(id){let p=projects.find(x=>x.id===id);show(`<div class="eye
 
 function recordForm(type,id){let data=type==='q'?quizzes:type==='l'?labs:exams,x=id?data.find(a=>a.id===id):null,label=type==='q'?'Quiz':type==='l'?'Laboratory':'Exam';show(`<div class="eyebrow">${x?'EDIT':'NEW'} ${label.toUpperCase()}</div><h2>${x?'Edit':'Add'} ${label}</h2><p class="modal-sub">Add the information after you complete the activity.</p><div class="form-grid"><div class="field full"><label>${label.toUpperCase()} NAME</label><input id="rn" value="${esc(x?.name||'')}" placeholder="e.g. Number Systems Quiz"></div><div class="field"><label>DATE</label><input id="rd" type="date" value="${esc(x?.date||'')}"></div><div class="field"><label>SCORE</label><input id="rs" value="${esc(x?.score||'')}" placeholder="e.g. 18/20"></div><div class="field full"><label>SHORT NOTE (OPTIONAL)</label><textarea id="rx" placeholder="Subject, topic, or description">${esc(x?.note||'')}</textarea></div><div class="field full"><label>FILE / ATTACHMENT / OUTPUT</label><input id="ri" type="file"><div class="file-note">Any file is allowed — screenshot, PDF, document, ZIP, or other file.</div><div id="fileNamePreview" class="file-note">${x?.fileName?`Current file: ${esc(x.fileName)}`:''}</div><img id="prev" class="preview" ${x?.image?`src="${x.image}" style="display:block"`:''}></div></div><div class="modal-actions"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn primary" onclick="saveRecord('${type}','${id||''}')">Save ${label}</button></div>`);document.getElementById('ri').onchange=e=>fileToData(e.target.files[0],d=>{if(d){document.getElementById('fileNamePreview').textContent='Selected file: '+d.name;if(d.type.startsWith('image/')){let z=document.getElementById('prev');z.src=d.data;z.style.display='block'}}})}
 
-function saveRecord(type, id) {
+async function saveRecord(type, id) {
     try {
         const nameInput = document.getElementById('rn');
         const dateInput = document.getElementById('rd');
@@ -947,7 +1035,6 @@ function saveRecord(type, id) {
         const fileInput = document.getElementById('ri');
 
         if (!nameInput || !dateInput || !scoreInput || !noteInput || !fileInput) {
-            console.error('Form elements not found.');
             toast('Form error. Please try again.');
             return;
         }
@@ -978,78 +1065,162 @@ function saveRecord(type, id) {
         const old = id ? data.find(x => x.id === id) : null;
         const file = fileInput.files[0];
 
-        fileToData(file, function(f) {
+        let fileInfo = null;
 
-            try {
-                const newRecord = {
-                    id: id || uid(),
-                    name: name,
-                    date: date,
-                    score: score,
-                    note: note,
-                    image: old?.image || '',
-                    fileData: f?.data || old?.fileData || '',
-                    fileName: f?.name || old?.fileName || '',
-                    fileType: f?.type || old?.fileType || ''
-                };
+        if (file) {
+            toast('Uploading file...');
 
-                if (type === 'q') {
-                    if (id) {
-                        quizzes = quizzes.map(x =>
-                            x.id === id ? newRecord : x
-                        );
-                    } else {
-                        quizzes.push(newRecord);
-                    }
+            fileInfo = await saveFileToDB(file);
 
-                    write(QK, quizzes);
-                    renderRecords('q');
-
-                } else if (type === 'l') {
-                    if (id) {
-                        labs = labs.map(x =>
-                            x.id === id ? newRecord : x
-                        );
-                    } else {
-                        labs.push(newRecord);
-                    }
-
-                    write(LK, labs);
-                    renderRecords('l');
-
-                } else if (type === 'e') {
-                    if (id) {
-                        exams = exams.map(x =>
-                            x.id === id ? newRecord : x
-                        );
-                    } else {
-                        exams.push(newRecord);
-                    }
-
-                    write(EK, exams);
-                    renderRecords('e');
-                }
-
-                closeModal();
-                toast(id ? 'Record updated!' : 'Record added!');
-
-            } catch (error) {
-                console.error('SAVE ERROR:', error);
-
-                if (error.name === 'QuotaExceededError') {
-                    toast('File is too large to save.');
-                } else {
-                    toast('Unable to save. Check the browser console.');
-                }
+            // Delete old file when replacing it
+            if (old?.fileId && fileInfo) {
+                deleteFileFromDB(old.fileId);
             }
-        });
+        }
 
-    } catch (error) {
-        console.error('FORM ERROR:', error);
-        toast('Something went wrong.');
+        const newRecord = {
+            id: id || uid(),
+            name: name,
+            date: date,
+            score: score,
+            note: note,
+
+            image: old?.image || '',
+
+            fileId: fileInfo?.id || old?.fileId || '',
+            fileName: fileInfo?.name || old?.fileName || '',
+            fileType: fileInfo?.type || old?.fileType || ''
+        };
+
+        if (type === 'q') {
+
+            if (id) {
+                quizzes = quizzes.map(x =>
+                    x.id === id ? newRecord : x
+                );
+            } else {
+                quizzes.push(newRecord);
+            }
+
+            write(QK, quizzes);
+        }
+
+        else if (type === 'l') {
+
+            if (id) {
+                labs = labs.map(x =>
+                    x.id === id ? newRecord : xasync function viewRecord(type, id) {
+    let data =
+        type === 'q'
+            ? quizzes
+            : type === 'l'
+                ? labs
+                : exams;
+
+    let x = data.find(a => a.id === id);
+
+    if (!x) {
+        toast('Record not found.');
+        return;
     }
+
+    let lab =
+        type === 'q'
+            ? 'QUIZ'
+            : type === 'l'
+                ? 'LABORATORY'
+                : 'EXAM';
+
+    let fileHTML = '';
+
+    if (x.fileId) {
+        try {
+            const file = await getFileFromDB(x.fileId);
+
+            if (file) {
+                const url = URL.createObjectURL(file);
+
+                if (file.type.startsWith('image/')) {
+                    fileHTML = `
+                        <img
+                            class="view-img"
+                            src="${url}"
+                            alt="${esc(x.fileName || 'Uploaded file')}"
+                        >
+                    `;
+                } else {
+                    fileHTML = `
+                        <div class="no-img">
+                            Attachment:
+                            <b>${esc(x.fileName || 'File')}</b>
+                            <br>
+
+                            <a
+                                class="btn primary small"
+                                style="margin-top:12px"
+                                href="${url}"
+                                download="${esc(x.fileName || 'file')}"
+                                target="_blank"
+                            >
+                                Open / Download File
+                            </a>
+                        </div>
+                    `;
+                }
+            } else {
+                fileHTML = `
+                    <div class="no-img">
+                        File could not be found.
+                    </div>
+                `;
+            }
+
+        } catch (error) {
+            console.error(error);
+
+            fileHTML = `
+                <div class="no-img">
+                    Unable to open this file.
+                </div>
+            `;
+        }
+
+    } else {
+        fileHTML = `
+            <div class="no-img">
+                No file uploaded yet.
+            </div>
+        `;
+    }
+
+    show(`
+        <div class="eyebrow">${lab}</div>
+
+        <h2>${esc(x.name)}</h2>
+
+        <div class="view-meta">
+            ${x.date
+                ? `<span class="pill">${esc(x.date)}</span>`
+                : ''
+            }
+
+            ${x.score
+                ? `<span class="pill">${esc(x.score)}</span>`
+                : ''
+            }
+        </div>
+
+        ${fileHTML}
+
+        ${
+            x.note
+                ? `<p class="modal-sub" style="margin-top:15px">
+                    ${esc(x.note)}
+                   </p>`
+                : ''
+        }
+    `);
 }
-function viewRecord(type,id){let data=type==='q'?quizzes:type==='l'?labs:exams,x=data.find(a=>a.id===id),lab=type==='q'?'QUIZ':type==='l'?'LABORATORY':'EXAM';show(`<div class="eyebrow">${lab}</div><h2>${esc(x.name)}</h2><div class="view-meta">${x.date?`<span class="pill">${esc(x.date)}</span>`:''}${x.score?`<span class="pill">${esc(x.score)}</span>`:''}</div>${fileMarkup(x,'No file uploaded yet.')} ${x.note?`<p class="modal-sub" style="margin-top:15px">${esc(x.note)}</p>`:''}`)}
 
 function del(type,id){if(!confirm('Delete this item?'))return;if(type==='p'){projects=projects.filter(x=>x.id!==id);write(PK,projects);renderProjects()}else if(type==='q'){quizzes=quizzes.filter(x=>x.id!==id);write(QK,quizzes);renderRecords('q')}else if(type==='l'){labs=labs.filter(x=>x.id!==id);write(LK,labs);renderRecords('l')}else{exams=exams.filter(x=>x.id!==id);write(EK,exams);renderRecords('e')}toast('Deleted.')}
 
