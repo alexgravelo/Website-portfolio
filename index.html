@@ -1029,54 +1029,6 @@ function renderRecords(type){
                 Download
             </a>
         </div>
-    </article>` : '';    
-    
-    <!-- MIDTERM QUIZ 4 -->
-    <article class="record-card reveal show">
-        <div class="record-top">
-            <span class="record-label">MIDTERM QUIZ 4</span>
-            <span class="score">21/25</span>
-        </div>
-        <h3>Virtual Networking</h3>
-        <p><strong>Name:</strong> Alex G. Ravelo</p>
-        <p style="margin-top:8px"><strong>Score:</strong> 21/25</p>
-        <p style="margin-top:8px">📎 MIDTERM_QUIZ_4.png</p>
-        <div class="card-actions">
-            <a class="btn small primary" href="./MIDTERM_QUIZ_4.png" target="_blank" rel="noopener">View Screenshot</a>
-            <a class="btn small" href="./MIDTERM_QUIZ_4.png" download>Download</a>
-        </div>
-    </article>
-
-    <!-- MIDTERM QUIZ PART 2 -->
-    <article class="record-card reveal show">
-        <div class="record-top">
-            <span class="record-label">MIDTERM QUIZ PART 2</span>
-            <span class="score">28/30</span>
-        </div>
-        <h3>Virtual Network Features and Networking</h3>
-        <p><strong>Name:</strong> Alex G. Ravelo</p>
-        <p style="margin-top:8px"><strong>Score:</strong> 28/30</p>
-        <p style="margin-top:8px">📎 MIDTERM_PART_2_QUIZ.png</p>
-        <div class="card-actions">
-            <a class="btn small primary" href="./MIDTERM_PART_2_QUIZ.png" target="_blank" rel="noopener">View Screenshot</a>
-            <a class="btn small" href="./MIDTERM_PART_2_QUIZ.png" download>Download</a>
-        </div>
-    </article>
-
-    <!-- MIDTERM LONG QUIZ -->
-    <article class="record-card reveal show">
-        <div class="record-top">
-            <span class="record-label">MIDTERM LONG QUIZ</span>
-            <span class="score">45/45</span>
-        </div>
-        <h3>Cloud Networking Virtualization</h3>
-        <p><strong>Name:</strong> Alex G. Ravelo</p>
-        <p style="margin-top:8px"><strong>Score:</strong> 45/45</p>
-        <p style="margin-top:8px">📎 MIDTERM_LONG_QUIZ.png</p>
-        <div class="card-actions">
-            <a class="btn small primary" href="./MIDTERM_LONG_QUIZ.png" target="_blank" rel="noopener">View Screenshot</a>
-            <a class="btn small" href="./MIDTERM_LONG_QUIZ.png" download>Download</a>
-        </div>
     </article>` : '';
 
     let staticLab=type==='l'?`
@@ -1107,7 +1059,7 @@ function renderRecords(type){
                 <a class="btn small" href="./Ravelo_Lab2_Elective.pdf" download>Download</a>
             </div>
         </article>`:'';
-    
+
     document.getElementById(id).innerHTML=
         staticQuiz+
         staticLab+
