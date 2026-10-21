@@ -944,9 +944,10 @@ function renderRecords(type){
         label=type==='q'?'Quiz':type==='l'?'Laboratory':'Exam';
 
     let staticQuiz=type==='q'?`
+    <!-- PRELIM QUIZ 1 -->
         <article class="record-card reveal show">
             <div class="record-top">
-                <span class="record-label">QUIZ</span>
+                <span class="record-label">PRELIM • QUIZ 1</span>
                 <span class="score">18/20</span>
             </div>
             <h3>Quiz 1</h3>
@@ -959,6 +960,71 @@ function renderRecords(type){
                 </a>
             </div>
         </article>`:'';
+    <!-- PRELIM QUIZ 2 -->
+    <article class="record-card reveal show">
+        <div class="record-top">
+            <span class="record-label">PRELIM • QUIZ 2</span>
+            <span class="score">20/20</span>
+        </div>
+        <h3>Quiz 2 - Virtualization</h3>
+        <p>Prelim quiz score</p>
+        <p style="margin-top:8px">📎 PRELIM_QUIZ_2.jpg</p>
+        <div class="card-actions">
+            <a class="btn small primary"
+               href="./PRELIM_QUIZ_2.jpg"
+               target="_blank" rel="noopener">
+                View Screenshot
+            </a>
+            <a class="btn small"
+               href="./PRELIM_QUIZ_2.jpg" download>
+                Download
+            </a>
+        </div>
+    </article>
+
+    <!-- PRELIM QUIZ 3 -->
+    <article class="record-card reveal show">
+        <div class="record-top">
+            <span class="record-label">PRELIM • QUIZ 3</span>
+            <span class="score">20/20</span>
+        </div>
+        <h3>Quiz 3 - Virtual Machine</h3>
+        <p>Prelim quiz score</p>
+        <p style="margin-top:8px">📎 PRELIM_QUIZ_3.jpg</p>
+        <div class="card-actions">
+            <a class="btn small primary"
+               href="./PRELIM_QUIZ_3.jpg"
+               target="_blank" rel="noopener">
+                View Screenshot
+            </a>
+            <a class="btn small"
+               href="./PRELIM_QUIZ_3.jpg" download>
+                Download
+            </a>
+        </div>
+    </article>
+
+    <!-- PRELIM LONG QUIZ -->
+    <article class="record-card reveal show">
+        <div class="record-top">
+            <span class="record-label">PRELIM • LONG QUIZ</span>
+            <span class="score">40/40</span>
+        </div>
+        <h3>Long Quiz</h3>
+        <p>Prelim long quiz score</p>
+        <p style="margin-top:8px">📎 PRELIM_LONG_QUIZ.jpg</p>
+        <div class="card-actions">
+            <a class="btn small primary"
+               href="./PRELIM_LONG_QUIZ.jpg"
+               target="_blank" rel="noopener">
+                View Screenshot
+            </a>
+            <a class="btn small"
+               href="./PRELIM_LONG_QUIZ.jpg" download>
+                Download
+            </a>
+        </div>
+    </article>` : '';
 
     let staticLab=type==='l'?`
         <article class="record-card reveal show">
