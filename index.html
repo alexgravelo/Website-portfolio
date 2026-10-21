@@ -943,23 +943,28 @@ function renderRecords(type){
         id=type==='q'?'quizGrid':type==='l'?'labGrid':'examGrid',
         label=type==='q'?'Quiz':type==='l'?'Laboratory':'Exam';
 
-    let staticQuiz=type==='q'?`
+    let staticQuiz = type === 'q' ? `
     <!-- PRELIM QUIZ 1 -->
-        <article class="record-card reveal show">
-            <div class="record-top">
-                <span class="record-label">PRELIM • QUIZ 1</span>
-                <span class="score">18/20</span>
-            </div>
-            <h3>Quiz 1</h3>
-            <p><strong>Name:</strong> Alex G. Ravelo</p>
-            <p style="margin-top:8px"><strong>Date:</strong> August 25, 2026</p>
-            <p style="margin-top:8px">📎 Quiz_1.jpg</p>
-            <div class="card-actions">
-                <a class="btn small primary" href="./Quiz_1.jpg" target="_blank" rel="noopener">
-                    View Screenshot
-                </a>
-            </div>
-        </article>`:'';
+    <article class="record-card reveal show">
+        <div class="record-top">
+            <span class="record-label">PRELIM • QUIZ 1</span>
+            <span class="score">18/20</span>
+        </div>
+        <h3>Quiz 1</h3>
+        <p><strong>Name:</strong> Alex G. Ravelo</p>
+        <p style="margin-top:8px">
+            <strong>Date:</strong> August 25, 2026
+        </p>
+        <p style="margin-top:8px">📎 Quiz_1.jpg</p>
+        <div class="card-actions">
+            <a class="btn small primary"
+               href="./Quiz_1.jpg"
+               target="_blank" rel="noopener">
+                View Screenshot
+            </a>
+        </div>
+    </article>
+
     <!-- PRELIM QUIZ 2 -->
     <article class="record-card reveal show">
         <div class="record-top">
