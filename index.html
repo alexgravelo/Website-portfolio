@@ -1077,7 +1077,7 @@ function renderRecords(type){
             <a class="btn small primary" href="./MIDTERM_LONG_QUIZ.png" target="_blank" rel="noopener">View Screenshot</a>
             <a class="btn small" href="./MIDTERM_LONG_QUIZ.png" download>Download</a>
         </div>
-    </article>
+    </article>` : '';
 
     let staticLab=type==='l'?`
         <article class="record-card reveal show">
@@ -1107,7 +1107,7 @@ function renderRecords(type){
                 <a class="btn small" href="./Ravelo_Lab2_Elective.pdf" download>Download</a>
             </div>
         </article>`:'';
-
+    
     document.getElementById(id).innerHTML=
         staticQuiz+
         staticLab+
