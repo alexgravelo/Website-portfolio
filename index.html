@@ -823,7 +823,7 @@ footer {
                         Quizzes.
                     </h2>
                     <p>
-                        I’ll add my quiz records here once we start having quizzes.
+                        My Prelim and Midterm quizzes. 
                     </p>
                     <div class="buttons">
                         <button class="btn danger small" onclick="clearAll('q')">Clear All Quizzes</button>
@@ -841,7 +841,7 @@ footer {
                         Laboratory activities.
                     </h2>
                     <p>
-                        I’ll add my laboratory activities here as I complete them.
+                        My Prelim and Midterm laboratories records.
                     </p>
 
                 </div>
@@ -870,7 +870,7 @@ footer {
                         Examinations.
                     </h2>
                     <p>
-                        I’ll add my exam records here once we start having exams.
+                        My prelim and midterm examination records.
                     </p>
                     <div class="buttons">
                         <button class="btn danger small" onclick="clearAll('e')">Clear All Exams</button>
@@ -1131,10 +1131,40 @@ let staticQuiz = type === 'q' ? `
                 <a class="btn small" href="./Ravelo_Lab2_Elective.pdf" download>Download</a>
             </div>
         </article>`:'';
+    
+        let staticExam=type==='e'?`
+        <article class="record-card reveal show">
+            <div class="record-top">
+                <span class="record-label">PRELIM • EXAM</span>
+                <span class="score">60 = 90</span>
+            </div>
+            <h3>Prelim Examination</h3>
+            <p>Prelim exam score</p>
+            <p style="margin-top:8px">📎 EXAM_PRELIM.jpg</p>
+            <div class="card-actions">
+                <a class="btn small primary" href="./EXAM_PRELIM.jpg" target="_blank" rel="noopener">View Screenshot</a>
+                <a class="btn small" href="./EXAM_PRELIM.jpg" download>Download</a>
+            </div>
+        </article>
+
+        <article class="record-card reveal show">
+            <div class="record-top">
+                <span class="record-label">MIDTERM • EXAM</span>
+                <span class="score">70/70 • 100%</span>
+            </div>
+            <h3>Cloud Computing Midterm Examination</h3>
+            <p>BSCS3 • 1 attempt</p>
+            <p style="margin-top:8px">📎 EXAM_MIDTERM.jpg</p>
+            <div class="card-actions">
+                <a class="btn small primary" href="./EXAM_MIDTERM.jpg" target="_blank" rel="noopener">View Screenshot</a>
+                <a class="btn small" href="./EXAM_MIDTERM.jpg" download>Download</a>
+            </div>
+        </article>`:'';
 
     document.getElementById(id).innerHTML=
         staticQuiz+
         staticLab+
+        staticExam+
         data.map(x=>`
             <article class="record-card">
                 <div class="record-top">
